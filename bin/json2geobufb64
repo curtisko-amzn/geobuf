@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+
+var encode = require('../encode'),
+    Pbf = require('pbf'),
+    fs = require('fs'),
+    concat = require('concat-stream');
+
+var input = process.stdin.isTTY ? fs.createReadStream(process.argv[2]) : process.stdin;
+
+input.pipe(concat(function(buf) {
+    var geojson = JSON.parse(buf.toString());
+
+    var pbf = encode(geojson, new Pbf());
+    var buffer = Buffer.allocUnsafe ? Buffer.from(pbf) : new Buffer(pbf);
+    var test = buffer.toString("base64");
+
+    process.stdout.write(test);
+}));

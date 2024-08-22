@@ -6,7 +6,8 @@
   "bin": {
     "geobuf2json": "bin/geobuf2json",
     "json2geobuf": "bin/json2geobuf",
-    "shp2geobuf": "bin/shp2geobuf"
+    "shp2geobuf": "bin/shp2geobuf",
+    "json2geobufb64": "bin/json2geobufb64"
   },
   "scripts": {
     "pretest": "eslint *.js test/*.js",
