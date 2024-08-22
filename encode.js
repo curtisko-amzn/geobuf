@@ -28,8 +28,8 @@ function encode(obj, pbf) {
     var precision = Math.ceil(Math.log(e) / Math.LN10);
 
     for (var i = 0; i < keysArr.length; i++) pbf.writeStringField(1, keysArr[i]);
-    if (dim !== 2) pbf.writeVarintField(2, dim);
-    if (precision !== 6) pbf.writeVarintField(3, precision);
+    pbf.writeVarintField(2, dim);
+    pbf.writeVarintField(3, precision);
 
     if (obj.type === 'FeatureCollection') pbf.writeMessage(4, writeFeatureCollection, obj);
     else if (obj.type === 'Feature') pbf.writeMessage(5, writeFeature, obj);
@@ -172,12 +172,12 @@ function writeLine(line, pbf) {
 function writeMultiLine(lines, pbf, closed) {
     var len = lines.length,
         i;
-    if (len !== 1) {
-        var lengths = [];
-        for (i = 0; i < len; i++) lengths.push(lines[i].length - (closed ? 1 : 0));
-        pbf.writePackedVarint(2, lengths);
-        // TODO faster with custom writeMessage?
+    var lengths = [];
+    for (i = 0; i < len; i++) {
+        lengths.push(lines[i].length - (closed ? 1 : 0));
     }
+    pbf.writePackedVarint(2, lengths);
+
     var coords = [];
     for (i = 0; i < len; i++) populateLine(coords, lines[i], closed);
     pbf.writePackedSVarint(3, coords);
@@ -186,14 +186,12 @@ function writeMultiLine(lines, pbf, closed) {
 function writeMultiPolygon(polygons, pbf) {
     var len = polygons.length,
         i, j;
-    if (len !== 1 || polygons[0].length !== 1) {
-        var lengths = [len];
-        for (i = 0; i < len; i++) {
-            lengths.push(polygons[i].length);
-            for (j = 0; j < polygons[i].length; j++) lengths.push(polygons[i][j].length - 1);
-        }
-        pbf.writePackedVarint(2, lengths);
+    var lengths = [len];
+    for (i = 0; i < len; i++) {
+        lengths.push(polygons[i].length);
+        for (j = 0; j < polygons[i].length; j++) lengths.push(polygons[i][j].length - 1);
     }
+    pbf.writePackedVarint(2, lengths);
 
     var coords = [];
     for (i = 0; i < len; i++) {
